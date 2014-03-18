@@ -1,0 +1,62 @@
+---
+layout: post
+title: Compiler un texte en Chinois avec Latex sous Linux
+categories:
+- Latex
+tags:
+- Chine
+- Latex
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wp_old_slug: ''
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p>La manière rapide pour écrire Chinois avec Latex</p>
+<h2> Installer Latex-CJK </h2>
+<p>Sous <i>Archlinux</i> :<br />
+<code>
+# pacman -S texlive-langcjk
+</code></p>
+<p>Sous <i>Debian</i> :<br />
+<code>
+# apt-get install latex-cjk-common
+</code></p>
+<h2>Écrire Chinois</h2>
+<p>Rajouter dans l'entête de votre fichier Latex le paquet chargeant CJK :</p>
+<blockquote><p>\usepackage{CJKutf8}</p></blockquote>
+<p>Et maintenant pour taper chinois, il suffit de taper entre les deux commandes suivantes :</p>
+<blockquote><p>
+\begin{CJK}{UTF8}{gbsn}</p>
+<p>  你的汉语文本</p>
+<p>\end{CJK}
+</p></blockquote>
+<p><b>Note :</b> Rien ne vous empêche de taper un texte en français entre les deux balises. Ainsi pour ma part j'ouvre la balise en tête de document et la ferme à la fin, comme ceci :</p>
+<blockquote><p>
+\begin{document}<br />
+\begin{CJK}{UTF8}{gbsn}</p>
+<p>  Votre texte en Français<br />
+  你的汉语文本</p>
+<p>\end{CJK}<br />
+\end{document}
+</p></blockquote>
+<h2>Bonus - Pour le Japonais</h2>
+<p>Taper un texte en japonais, c'est comme taper un texte en chinois, il n'y a que la police de caractère qui change :</p>
+<blockquote><p>
+\begin{CJK}{UTF8}{min}</p>
+<p>  Votre texte en japonais</p>
+<p>\end{CJK}
+</p></blockquote>
+<h2> Double Bonus - Le pinyin </h2>
+<p>Il suffit de charger le paquet pinyin dans votre fichier Latex :</p>
+<blockquote><p>\usepackage{pinyin}</p></blockquote>
+<p>Et après de taper le pinyin comme ceci dans le texte :</p>
+<blockquote><p>\wo3 \shi4 \fa3\guo2\ren2</p></blockquote>
+<p><b>Note :</b> Le paquet pinyin n'est pas compatible avec certaines lettres grecques. Par exemple, utiliser <i>\pi</i> avec le paquet pinyin chargé provoquera une erreur à la compilation</p>
