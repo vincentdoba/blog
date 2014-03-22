@@ -1,0 +1,105 @@
+---
+layout: post
+title: Plus de détails sur la touche Compose
+categories:
+- Archlinux
+tags:
+- Archlinux
+- SCIM
+- xkb
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wp_old_slug: ''
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p>Je me baladais sur internet lorsque je suis tombé sur cet <a href="http://calimeroteknik.free.fr/blag/?article5/la-touche-compose">article</a> par <a href="http://calimeroteknik.free.fr/">CalimeroTeknik</a>, expliquant comment taper des caractères aussi indispensables que ☺ ou ♥ en utilisant la touche 'menu' (je vous laisse chercher cette touche sur votre clavier, la solution est sur le blog de CalimeroTeknik).</p>
+<p>Ni une ni deux je décide donc d'appliquer le contenu de cet article. Sauf que : </p>
+<ul>
+<li>Je ne veux pas utiliser la touche 'menu', mais la touche 'windows' / 'super' (touche située entre la touche 'Fn' et la touche 'Alt' sur mon clavier).</li>
+<li>J'aimerais bien savoir ce que je peux taper avec cette fonction compose (à part ☺ et ♥), voir ajouter des caractères spéciaux.</li>
+<li>Je voudrais utiliser cette fonction en parallèle avec SCIM, qui me permet de taper les caractères Chinois et Japonais.</li>
+</ul>
+<p><b>Note :</b> les commandes et méthodes décrites dans cet article ont été appliquées sur mon ordinateur principal dont la configuration est disponible <a href="?page_id=142">ici</a>.</p>
+<h2>Étape 1 : comment s'appelle la touche 'windows' / 'super' pour mon ordinateur ?</h2>
+<p>Pour changer l'attribution des touches de manière temporaire (c'est à dire tant que l'on redémarre pas le serveur X), il suffit d'utiliser la commande suivante :<br />
+<code>
+$ setxkbmap -option 'nomducaracterequelonveutafficher:nomdelatouche'
+</code></p>
+<p>Ainsi pour attribuer l'action 'compose' à la touche 'menu', il suffit de taper :<br />
+<code>
+$ setxkbmap -option 'compose:menu'
+</code></p>
+<p>Malheureusement, je ne veux pas attribuer l'action 'compose' à la touche 'menu', mais à la touche 'windows' / 'super'. Où trouver le nom que xkb attribue aux touches de son clavier (non, <i>setxkbmap -option 'compose:windows/super'</i> ne marche pas) ? Dans le fichier <i>/usr/share/X11/xkb/keycodes/evdev</i> pardi !!! Voici une partie de ce fichier :</p>
+<pre>
+        &lt;AB10&gt; = 61;
+        &lt;RTSH&gt; = 62;
+
+        &lt;LALT&gt; = 64;
+        &lt;LCTL&gt; = 37;
+        &lt;SPCE&gt; = 65;
+        &lt;RCTL&gt; = 105;
+        &lt;RALT&gt; = 108;
+        // Microsoft keyboard extra keys
+        &lt;LWIN&gt; = 133;
+        &lt;RWIN&gt; = 134;
+        &lt;COMP&gt; = 135;
+        alias &lt;MENU&gt; = &lt;COMP&gt;;
+
+        &lt;ESC&gt; = 9;
+        &lt;FK01&gt; = 67;
+        &lt;FK02&gt; = 68;
+        &lt;FK03&gt; = 69;
+        &lt;FK04&gt; = 70;
+</pre>
+<p>Conclusion, la touche 'windows' / 'super' s'appelle 'LWIN', je peux donc taper la commande suivante et passer à l'étape 2 :<br />
+<code>
+$ setxkbmap -option 'compose:lwin'
+</code></p>
+<h2>Étape 2 : qu'est ce que je peux taper comme caractère ? Comment ajouter des caractères ?</h2>
+<p>Bon, donc maintenant, j'ai à priori accès à plein de touches très intéressantes en tapant 'windows' puis 'touche1' puis 'touche2'. Par exemple, en tapant 'windows' puis 'o' puis 'e' (tapées l'une à la suite de l'autre, pas besoin de maintenir la touche 'windows' appuyée), j'obtiens œ. </p>
+<p>Oui, mais quelles sont toutes les combinaisons possibles ? La première solution serait d'essayer toutes les combinaisons de touches de mon clavier. Sachant que 'compose' permet les combinaisons jusqu'à au moins trois touches et qu'un clavier normal possède environ 100 touches, il suffit donc de tester au bas mot 100x100x100 = un million de possibilités (sans compter les permutations)... Il y a quand même d'autres manières de passer son après-midi...</p>
+<p>Une autre solution est de regarder dans les fichiers <i>/usr/share/locales/votrelocale/Compose</i>. Ainsi moi je regarde dans <i>usr/share/locales/iso8859-9/Compose</i>. Voici un extrait de ce fichier :</p>
+<pre>
+&lt;Multi_key&gt; &lt;S&gt; &lt;1&gt;  : &quot;271&quot;  onesuperior
+&lt;Multi_key&gt; &lt;1&gt; &lt;S&gt;  : &quot;271&quot;  onesuperior
+&lt;Multi_key&gt; &lt;s&gt; &lt;1&gt;  : &quot;271&quot;  onesuperior
+&lt;Multi_key&gt; &lt;1&gt; &lt;s&gt;  : &quot;271&quot;  onesuperior
+&lt;Multi_key&gt; &lt;2&gt; &lt;asciicircum&gt;  : &quot;262&quot;  twosuperior
+&lt;Multi_key&gt; &lt;asciicircum&gt; &lt;2&gt;  : &quot;262&quot;  twosuperior
+&lt;Multi_key&gt; &lt;S&gt; &lt;2&gt;  : &quot;262&quot;  twosuperior
+&lt;Multi_key&gt; &lt;2&gt; &lt;S&gt;  : &quot;262&quot;  twosuperior
+&lt;Multi_key&gt; &lt;s&gt; &lt;2&gt;  : &quot;262&quot;  twosuperior
+&lt;Multi_key&gt; &lt;2&gt; &lt;s&gt;  : &quot;262&quot;  twosuperior
+&lt;Multi_key&gt; &lt;3&gt; &lt;asciicircum&gt;  : &quot;263&quot;  threesuperior
+&lt;Multi_key&gt; &lt;asciicircum&gt; &lt;3&gt;  : &quot;263&quot;  threesuperior</pre>
+<p>En gros, si on prend la première ligne, cela veut dire qu'en tapant 'windows' puis '1' puis 'S', j'obtiens le signe 'one superior' soit '¹'. </p>
+<p>Bon, en fait, on se rend compte que ce fichier est assez limité : on ne peut taper ni de ♥, ni de ☺. Heureusement, on peut définir son propre fichier de commande en créant le fichier <i>.XCompose</i> dans son dossier personnel et en ajoutant les commandes spécifiques à la main (ne pas oublier de commencer son fichier par la ligne <i>include "%L"</i> permettant de charger le fichier <i>.XCompose</i> de sa langue locale). Ou bien, pour les plus paresseux, en allant directement les chercher sur internet, de généreux utilisateur mettant en ligne leur propres fichiers <i>.XCompose</i> comme <a href="https://github.com/kragen/xcompose/blob/master/dotXCompose">celui-ci</a> proposé par <a href="http://canonical.org/~kragen/">Kragen</a>.</p>
+<p>Voilà, maintenant on peut taper des trucs comme ∞, ☯... Enfin normalement. Il semble que j'ai des petits problèmes techniques à ce niveau là, le fichier <i>.XCompose</i> ne semblant pas se charger à cause de SCIM... Le bug est déjà reporté <a href="http://sourceforge.net/tracker/?func=detail&atid=650542&aid=1968906&group_id=108454">ici</a>. </p>
+<p><b>Note :</b> Dans <i>Gedit</i>, on peut quand même faire en sorte de pouvoir taper une partie de ces caractères en faisant un clic droit dans la zone de saisie de texte et en sélectionnant <i>Méthodes de saisie → Simple</i></p>
+<h2>Étape 3 : et comment la faire fonctionner avec SCIM, cette fonction Compose ?</h2>
+<p>Bref, comme vous avez pu le constater si vous avez lu la partie précédente, SCIM et xkb ne font pas forcément bon ménage. Ainsi, normalement, on peut attribuer la fonction compose à la touche de son choix au démarrage du serveur X en ajoutant au fichier <i>/etc/X11/xorg.conf.d/10-evdev.conf</i> la ligne <i>Option "XkbOption" "compose:lwin"</i> comme ceci :</p>
+<pre>
+Section "InputClass"
+        Identifier "evdev keyboard catchall"
+        MatchIsKeyboard "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "evdev"
+        Option "XkbLayout" "fr"
+        Option "XkbOptions" "compose:lwin"
+EndSection
+</pre>
+<p>Malheureusement, avec SCIM activé, cela ne marche pas, et j'ai dû me résoudre à ajouter la commande <i>setxkbmap -option 'compose:lwin'</i> comme application à démarrer au lancement de gnome (en allant dans le menu <i>Système → Préférence → Application au démarrage</i> puis en cliquant sur 'ajouter' puis en recopiant la commande dans le champs 'commande'). J'espère que cela restera une solution temporaire.</p>
+<p><b>Quelques liens utiles</b></p>
+<ul>
+<li> L'article de CalimeroTeknik : <a href="http://calimeroteknik.free.fr/blag/?article5/la-touche-compose">http://calimeroteknik.free.fr/blag/?article5/la-touche-compose</a></li>
+<li> Une explication sur la configuration d'xkb (en anglais), avec notamment une image d'un clavier avec les noms des touches : <a href="http://www.charvolant.org/~doug/xkb/html/node5.html">http://www.charvolant.org/~doug/xkb/html/node5.html</a></li>
+<li> La page sur la fonction 'compose' sur le wiki d'edubuntu : <a href="https://wiki.edubuntu.org/ComposeKey">https://wiki.edubuntu.org/ComposeKey</a></li>
+</ul>

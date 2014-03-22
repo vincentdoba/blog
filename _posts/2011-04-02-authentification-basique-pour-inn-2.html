@@ -1,0 +1,55 @@
+---
+layout: post
+title: Authentification basique pour INN 2
+categories:
+- Linux
+- Serveur
+tags:
+- Administration Système
+- INN2
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p><a href="http://www.isc.org/software/inn/">INN 2</a> (InterNetNews) est logiciel permettant de monter son propre serveur de news. Lorsque je l'ai installé sur mon serveur Debian, j'ai suivi le tutorial de <a href="http://www.taket.org/spip/article.php3?id_article=19">taket.org</a>. Malheureusement, celui n'explique pas comment faire en sorte que seul les utilisateurs identifiés puissent se connecter au serveur de news. D'où ce complément.</p>
+<p>Pour réaliser cette authentification, les couples <i>utilisateurs/mot de passes</i> seront stockés dans un fichier généré par l'outil <i>htpasswd</i> de la fondation apache. Cet outil est installé lors de l'installation du serveur apache. Si vous ne voulez pas installer apache, vous pouvez récupérer htpasswd <a href="http://www.squid-cache.org/htpasswd/">ici</a> . Je suppose également que vous avez suivi le tutorial du site du Taket au moins jusqu'à la fin de la partie 3 (Mettre en place un serveur de news chez soi).</p>
+<h1>Génération du fichier de stockage des mots de passes</h1>
+<p>Vous créez le fichier (et ajoutez le premier utilisateur) en tapant la commande suivante :</p>
+<p><code># htpasswd -c -d /var/lib/news/passwd nomdupremierutilisateur</code></p>
+<p>On vous demande de taper deux fois un mot de passe et c'est gagné. L'option -c permet de créer le fichier. L'option -d force l'utilisation de l'outil de cryptage <i>crypt</i>. En effet, l'outil de vérification de mot de passe de INN2 ne marche qu'avec des mots de passe cryptés par <i>crypt</i>. </p>
+<h1>Forcer l'authentification sur le serveur de news</h1>
+<p>Dans <i>/etc/news/readers.conf</i>, on va remplacer les lignes ci-dessous :</p>
+<pre>
+auth "local" {
+    hosts: "*.*"
+    default: "<local>@taket.org"
+}
+access "local" {
+    users: "<local>@taket.org"
+    newsgroups: "*"
+}
+</pre>
+<p>Par les lignes suivantes :</p>
+<pre>
+auth all {
+    auth: "ckpasswd -f /var/lib/news/passwd"
+}
+
+access full {
+    users: *
+    newsgroups: "*"
+}
+</pre>
+<p>Voilà, maintenant tous les utilisateurs ne se connectant pas à partir de la machine sur laquelle le serveur de news est installé se verront demander un mot de passe. </p>
+<p>Penchons-nous un peu sur la ligne <i>auth: "ckpasswd -f /var/lib/news/passwd"</i>. Elle signale juste que l'authentification est soumise à une vérification de mot de passe via la commande <i>ckpasswd</i> qui grâce à l'option <i>-f</i> va vérifier que le login/mot de passe tapé existe dans le fichier <i>/var/lib/news/passwd</i>. Signalons que le programme de vérification <i>ckpasswd</i> peut être remplacé par un autre programme. De même, on peut stocker les couples login/mot de passe dans une base de données plutôt que dans un fichier. Base de données que nous irions chercher avec l'option <i>-d</i> à la place de <i>-f</i>.</p>
+<h1>Ajouter un utilisateur</h1>
+<p>Pour ajouter un utilisateur, il suffit de taper la même commande que pour créer le fichier de stockage des mots de passe, sauf que l'on supprime l'option <i>-c</i> :</p>
+<p><code># htpasswd -d /var/lib/news/passwd nomdutilisateur</code></p>

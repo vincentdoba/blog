@@ -1,0 +1,47 @@
+---
+layout: post
+title: Installer IntelliJ IDEA sous Archlinux à partir des sources
+categories:
+- Archlinux
+- Développement
+- Linux
+tags:
+- intelliJ IDEA
+- java
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p><a href="http://www.jetbrains.com/idea/index.html">IntelliJ IDEA</a> est un IDE (environnement de développement logiciel) pour le langage Java.</p>
+<h1>Télécharger et Installer IDEA IntelliJ</h1>
+<p>Le téléchargement se fait <a href="http://www.jetbrains.com/idea/download/index.html">ici</a>. Une fois téléchargé, vous extrayez l'archive, allez dans le dossier ainsi extrait puis dans le dossier <i>bin</i>. Vous double-cliquez sur le fichier <i>idea.sh</i> et puis sur <i>Lancer</i> lors de l'affichage de la fenêtre de choix (sous Gnome).</p>
+<h1>Importation de projets depuis Eclipse</h1>
+<ul>
+<li>Cliquez sur <i>File</i>, puis sur <i>New Project</i>. Une fenêtre apparait.</li>
+<li>Choisissez <i>Import Project from External Model</i>, puis cliquez sur <i>Next</i></li>
+<li>Choisissez <i>Eclipse</i>, puis cliquez sur <i>Next</i></li>
+<li>Définissez le chemin de votre projet ou de votre espace de travail Eclipse, puis cliquez sur <i>Next</i></li>
+<li>Selectionnez le projet à importer, puis cliquez sur <i>Next</i></li>
+</ul>
+<h3>Problèmes avec le JDK</h3>
+<p>Pour l'importation/création du premier projet, à la fenêtre suivante, le logiciel vous demande de sélectionner le <i>JDK</i> du projet. Cliquez sur le petit plus en haut à gauche (en dessous de la phrase "This JDK will be used by default by all project modules"), vous sélectionnez <i>JSDK</i> puis entrez l'un des chemins suivants :</p>
+<ul>
+<li><i>/opt/java</i> si vous utilisez la machine virtuel java d'Oracle</li>
+<li><i>/usr/lib/jvm</i> si vous utilisez la machine virtuel java libre openJDK</li>
+</ul>
+<p>Assez étrangement, lors de ma première importation, le logiciel me signale une erreur de chargement du JDK. Et du coup les bibliothèques standards java ne sont pas chargé (ce qui fait que le logiciel me signale des erreurs à chaque fois que j'utilise un type de données contenu dans la bibliothèque standard comme <i>String</i>). La solution est la suivante</p>
+<ul>
+<li>Cliquer sur <i>File</i>, puis <i>Project Structure</i>.
+<li>De là, aller dans <i>Modules</i>, puis dans l'onglet <i>Dependencies</i>.
+<li>Dans le menu déroulant intitulé <i>Modules SDK</i>, choisir <i>1.6</i>.</li>
+<li>Cliquer sur <i>Apply</i> puis <i>Ok</i>.</li>
+<li>Attendre un peu que le logiciel reconstruise le projet.</li>
+</ul>

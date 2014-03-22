@@ -1,0 +1,62 @@
+---
+layout: post
+title: Compile a Chinese text with Latex under Linux
+categories:
+- Latex @en
+tags:
+- China
+- Latex
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wp_old_slug: ''
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p>The quick way to use Chinese with Latex.</p>
+<h2> Install Latex-CJK </h2>
+<p>With <i>Archlinux</i> :<br />
+<code>
+# pacman -S texlive-langcjk
+</code></p>
+<p>With <i>Debian</i> :<br />
+<code>
+# apt-get install latex-cjk-common
+</code></p>
+<h2>Typing Chinese</h2>
+<p>Add in headers of your latex file the below line that will load CJK's package :</p>
+<blockquote><p>\usepackage{CJKutf8}</p></blockquote>
+<p>And now, to successfully compile a Latex file with Chinese characters, you just need to write your Chinese text between these two tags :</p>
+<blockquote><p>
+\begin{CJK}{UTF8}{gbsn}</p>
+<p>  Your text in Chinese</p>
+<p>\end{CJK}
+</p></blockquote>
+<p><b>Note :</b> You can also type English between these two tags. That's why I usually put these tag just after the beginning of my document and just before the end of my document</p>
+<blockquote><p>
+\begin{document}<br />
+\begin{CJK}{UTF8}{gbsn}</p>
+<p>  Your text in English<br />
+  你的汉语文本</p>
+<p>\end{CJK}<br />
+\end{document}
+</p></blockquote>
+<h2>Bonus - Typing Japanese</h2>
+<p>Typing a Japanese text is like typing a Chinese text, you just need to change the font :</p>
+<blockquote><p>
+\begin{CJK}{UTF8}{min}</p>
+<p>  Your text in Japanese</p>
+<p>\end{CJK}
+</p></blockquote>
+<h2> Double Bonus - Pinyin </h2>
+<p>You just have to load the pinyin package by adding this line to your Latex file headers :</p>
+<blockquote><p>\usepackage{pinyin}</p></blockquote>
+<p>And type your pinyin text as follow :</p>
+<blockquote><p>\wo3 \shi4 \fa3\guo2\ren2</p></blockquote>
+<p><b>Note :</b> Pinyin package conflicts with some Greek characters . For instance, typing <i>\pi</i> with a loaded pinyin package raise an error when compiling.</p>

@@ -1,0 +1,58 @@
+---
+layout: post
+title: Autoriser un utilisateur à voir tous les processus sur un serveur OVH
+categories:
+- Linux
+tags:
+- debian
+- grsecurity
+- linux
+- monitoring
+- ovh
+- processus
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p>Il y a quelque temps, j'ai installé zabbix (un système de monitoring) sur un serveur OVH. Malheureusement, l'utilisateur zabbix que l'on crée à l'installation de zabbix n'a pas accès à la liste de tous les processus mais seulement à ceux qu'il a lancés. Or c'est cet utilisateur zabbix qui fait les requêtes pour vérifier que certains programmes, dont certains lancés par d'autres utilisateurs, fonctionnent. </p>
+<p>Ainsi, afin d'avoir une application zabbix qui fonctionne parfaitement, il me fallait trouver le moyen que l'utilisateur zabbix ait accès à tous les processus.</p>
+<h1>Pourquoi par défaut un utilisateur ne peut pas lister tous les processus sur une machine OVH ?</h1>
+<p>La raison tient en un mot :<a href="http://grsecurity.net/"> grsecurity</a>. Grsecurity est un patch à appliquer au noyau linux qui permet de rendre celui-ci plus sécurisé. Ainsi, sur un noyau patché avec grsecurity, les utilisateurs et processus ont les droits minimaux nécessaires à leur execution. OVH fournit par défaut des noyaux patchés avec grsecurity sur leurs serveurs dédiés. Ce qui pose problème dans notre cas car du coup, zabbix n'a pas accès à la liste de tous les processus fonctionnant sur la machine.</p>
+<p>Pour remédier à cela, il y a deux solutions. La première est de recompiler le noyau avec grsecurity mais en modifiant certaines options afin qu'un groupe avec un GID (identifiant de groupe) défini donne le droit à ses membres de voir tous les processus. La deuxième est de changer de noyau pour choisir un noyau sans grsecurity. </p>
+<h1>Première solution : recompiler le noyau (non testé)</h1>
+<p>La première solution est de recompiler le noyau avec grsecurity en changeant certaines options. Je ne l'ai pas fait mais l'idée est de créer un groupe, noter son GID, et ajouter l'utilisateur à ce groupe. Ensuite on récupère les sources du noyau, on le patch avec grsecurity, on modifie la configuration de grsecurity en y mettant les valeurs suivantes (remplacer 1001 par le GID précédemment noté):</p>
+<pre>
+CONFIG_GRKERNSEC_PROC_MEMMAP=y
+CONFIG_GRKERNSEC_PROC=y
+CONFIG_GRKERNSEC_PROC_USER=y
+CONFIG_GRKERNSEC_PROC_USERGROUP=y
+CONFIG_GRKERNSEC_PROC_GID=1001
+CONFIG_GRKERNSEC_PROC_ADD=y
+</pre>
+<p>Pour avoir une idée des commandes à executer: <a href="http://blog.arkanes.org/index.php/Customisation_serveur_OVH">http://blog.arkanes.org/index.php/Customisation_serveur_OVH</a><br />
+Et sur le sens des options à modifier : <a href="http://en.wikibooks.org/wiki/Grsecurity/Appendix/Grsecurity_and_PaX_Configuration_Options#Proc_restrictions">Grsecurity, section proc restriction</a> <i>(en anglais)</i></p>
+<h1>deuxième solution : remplacer le noyau compilé avec grsecurity par un noyau standard</h1>
+<p>cette procédure est expliquée sur le site d'OVH : <a href="http://guide.ovh.com/printPage/KernelInstall">http://guide.ovh.com/printPage/KernelInstall</a>. il suffit de récupérer le nom de votre noyau, remplacer <i>grs</i> par <i>std</i> dans ce nom et de téléchager cette version là sur le site <a href="ftp://ftp.ovh.net/made-in-ovh/bzImage/">ftp://ftp.ovh.net/made-in-ovh/bzImage/</a>.</p>
+<p>La liste des commandes à exécuter, pour un noyau debian :<br />
+<code>
+# cd /boot<br />
+# uname -r | sed s/grs/std/g | sed s/-stdec//| sed s,^,ftp://ftp.ovh.net/made-in-ovh/bzImage/bzImage-, | xargs wget<br />
+# update-grub<br />
+# reboot
+</code></p>
+<p>la commande commençant par <i>uname -r</i> permet de récupérer la version du noyau standard correspondant à la version grsecurity installé. </p>
+<h1>Les trucs qui ne marchent pas</h1>
+<h2>Utiliser sysctl</h2>
+<p>sysctl est une commande permettant de changer à chaud les paramètres du noyau. Malheureusement, la configuration de grsecurity choisie par OVH ne semble pas permettre de changer les paramètres de grsecurity via cette méthode.</p>
+<h2>Ajouter l'utilisateur au groupe ayant pour GID 10 ou pour nom wheel</h2>
+<p>Dans certaines installations par défaut de grsecurity, il semble que le privilège de voir les processus soit donné au groupe wheel ayant pour GID 10. Ce n'est pas le cas pour les serveurs OVH.</p>
+<h1>Conclusion</h1>
+<p>Voilà, après avoir utilisé la première ou la deuxième méthode, notre utilisateur a accès à la liste des processus. La première méthode permet de conserver grsecurity, en perdant le confort d'un noyau compilé par OVH alors que la deuxième méthode, c'est l'inverse.</p>

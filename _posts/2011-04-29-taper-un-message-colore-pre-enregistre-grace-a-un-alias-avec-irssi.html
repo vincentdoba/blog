@@ -1,0 +1,46 @@
+---
+layout: post
+title: Taper un message coloré pré-enregistré grâce à un Alias avec Irssi.
+categories:
+- Divers
+tags:
+- irssi
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p>Le but de ce cet article est de taper un message coloré pré-enregistré sur le canal IRC sur lequel on est à l'aide d'un alias en utilisant le logiciel de messagerie Irssi.</p>
+<h2>Taper un message sur le canal courant à l'aide d'un alias</h2>
+<p>La première étape est de réussir à taper un message sur le canal actif à l'aide d'un alias, pour cela on ouvre le fichier de configuration de Irssi, qui est s'appelle <i>config</i> et se situe dans le dossier <i>.irssi</i> de votre répertoire <i>home</i> et on cherche la ligne commençant par &quot;aliases&quot;, qui, dans le fichier de configuration par défaut, se présente comme cela :</p>
+<pre>
+aliases = {
+  J = &quot;join&quot;;
+  WJOIN = &quot;join -window&quot;;
+  WQUERY = &quot;query -window&quot;;
+  LEAVE = &quot;part&quot;;
+</pre>
+<p>Dans cette fonction sont décrits tous les alias. Par exemple, si, une fois Irssi lancé, je tape <i>/J #canal</i>, Irssi lancera la commande <i>/join #canal</i> et vous vous retrouverez sur le canal #canal. Maintenant, on va ajouter un alias  à /bonj qui va afficher le texte &quot;Salut les copains&quot; sur le canal sur lequel on est. Pour cela, on ajoute la ligne <i>BONJ = &quot;msg $C Salut les copains&quot;</i> juste après la ligne contenant aliases comme ceci :</p>
+<pre>
+aliases = {
+  BONJ = &quot;msg $C Salut les copains&quot;;
+  J = &quot;join&quot;;
+  WJOIN = &quot;join -window&quot;;
+  WQUERY = &quot;query -window&quot;;
+  LEAVE = &quot;part&quot;;
+</pre>
+<p>La commande /msg permet d'envoyer un message et $C est la variable Irssi relatif au canal actif. Voilà, maintenant, en relançant irssi et en tapant /bonj sur un canal quelconque, le message "Salut les copains" s'affichera sur ce canal.</p>
+<h2>Taper un message coloré en utilisant un alias</h2>
+<p>Normalement, pour taper un message coloré sur un canal avec irssi, il suffit d'appuyer simultanément sur les touches &lt;Control&gt; + C puis de taper le numéro de la couleur, puis de taper son texte. Méthode qui n'est pas applicable lorsque l'on veut créer un alias. Pour avoir la couleur dans un alias, il faut taper \003 et le numéro de la couleur avant le texte coloré. Par exemple, le code couleur du gris est 14. Pour taper en gris, il me faudra donc mettre dans mon alias, avant le texte que je veux colorer en gris, \00314. Les autres codes couleurs peuvent être obtenus à l'adresse suivante : <a href="http://www.irssi.org/documentation/formats">http://www.irssi.org/documentation/formats</a>, section &quot;MIRC colors that you can use when writing text to channel&quot;. </p>
+<p>Ainsi, dans notre alias précédent, si l'on veut afficher &quot;Salut&quot; en bleu, &quot;les&quot; en blanc et &quot;copains&quot; en bleu lorsque l'on tape l'alias \bonj, il faut modifier l'alias dans le fichier config comme ceci :</p>
+<pre>
+  BONJ = &quot;msg $C \0032Salut \0030les \0035copains&quot;;
+</pre>
+<p>Où \0032 représente la couleur bleu (code couleur : 2), \0030 la couleur blanche (code couleur : 0) et \0035 la couleur rouge (code couleur : 5). </p>

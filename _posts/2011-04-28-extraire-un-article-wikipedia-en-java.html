@@ -1,0 +1,127 @@
+---
+layout: post
+title: Extraire un article wikipedia en Java
+categories:
+- Développement
+- Java
+tags:
+- java
+- Jericho HTML Parser
+- Wikipedia
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p><strong>Remarque : cette méthode  ne dois pas être utilisée pour récupérer un nombre important d'articles, Si vous souhaitez extraire un grand nombre d'articles, Wikipedia diffuse des sauvegardes (dump) de sa base de données à l'adresse <a href="http://dumps.wikimedia.org/">dumps.wikimedia.org</a>.</strong></p>
+<p>Je vais aujourd'hui vous présenter une méthode pour récupérer un article Wikipedia lorsqu'on a son titre en utilisant la page web de l'article. Pour cela, je vais utiliser la bibliothèque Jericho, qui fournit un parser HTML. Cette bibliothèque est disponible à l'adresse <a href="http://jericho.htmlparser.net/docs/index.html">jericho.htmlparser.net</a>. </p>
+<h1>La bibliothèque Jericho</h1>
+<p>La bibliothèque Jericho est téléchargeable à cette adresse : <a href="http://sourceforge.net/projects/jerichohtml/files/">http://sourceforge.net/projects/jerichohtml/files/</a>, le fichier .jar est disponible, une fois la bibliothèque téléchargée et extraite, dans le dossier <i>dist</i>, il ne vous reste plus qu'à l'ajouter à votre projet en utilisant votre IDE préféré. La javadoc est disponible à l'adresse suivante : <a href="http://jericho.htmlparser.net/docs/javadoc/index.html">http://jericho.htmlparser.net/docs/javadoc/index.html</a>. Voici une liste des classes et des méthodes utilisées dans cet exemple :</p>
+<h2>Source</h2>
+<p>Cette classe représente une page web extraite à l'aide de Jericho. Les méthodes utilisées dans l'exemple sont :</p>
+<ul>
+<li><strong>Source(URL url)</strong> Le constructeur. Récupère la page web pointée par l'url.</li>
+<li><strong>getNextStartTag(int pos)</strong> Retourne la première balise html ouvrante suivant la position &quot;pos&quot;.</li>
+<li><strong>getNextStartTag(int pos, String name)</strong> Permet, contrairement à la méthode précédante, de selectionner le type (div, title...) de la balise. Ainsi la méthode retournera la première balise ouvrante d'un type particulier. La balise est passée en paramètre comme une string, par exemple getNextStartTag(0, &quot;div&quot;)</li>
+</ul>
+<h2>StartTag</h2>
+<p>Cette classe représente une balise html ouvrante. Les méthodes utilisées dans l'exemple sont :</p>
+<ul>
+<li><strong>getName()</strong> Retourne le type de la balise, par exemple &quot;div&quot;, &quot;title&quot;... </li>
+<li><strong>getAttributeValue(String attribute)</strong> Retourne la valeur de l'attribut passé en paramètre. Ainsi, pour la balise &lt;div id=&quot;12&quot; &gt;, la méthode getAttributeValue(&quot;id&quot;) retournera la chaine de caractère &quot;12&quot;.</li>
+<li><strong>getElement()</strong> Retourne un objet Element qui contient tout ce qui est encapsulé par la balise, par exemple, pour la balise &lt;title&gt; dans "&lt;title&gt;Mon Titre&lt;/title&gt;", la méthode retournera un Element qui contiendra "&lt;title&gt;Mon Titre&lt;/title&gt;"</li>
+</ul>
+<h2>Element</h2>
+<p>C'est la classe qui contient tout ce qui est compris entre 2 balises, incluant les balises. La méthode utilisée dans l'exemple est :</p>
+<ul>
+<li><strong>GetContent()</strong> Récupère ce qui est compris entre les 2 balises, sans les balises. Retourne un objet Content dont la méthode toString permet de récupérer le contenu au format String</li>
+</ul>
+<h1>La méthode d'extraction</h1>
+<p>Voici la méthode que j'ai codée. Je la décrierai ensuite ligne par ligne</p>
+<pre>
+import net.htmlparser.jericho.HTMLElementName;
+import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.StartTag;
+import java.io.*;
+import java.net.URL;
+
+public Class ArticleExtractor {
+  /**
+  * Récupère un article wikipedia d'après le titre
+  * @param articleTitle Le titre de l'article
+  */
+  public static String getFromWeb(String articleTitle) throws IOException {
+
+    // récupère la page à partir de wikipedia
+    String title = articleTitle.replace(&quot; &quot;, &quot;_&quot;);
+    String url = &quot;http://fr.wikipedia.org/wiki/&quot; + title;
+    Source source = new Source(new URL(url));
+
+    // récupère l'article wikipedia
+    for (int pos=0; pos&lt;source.length();) {
+      StartTag startTag=source.getNextStartTag(pos, HTMLElementName.DIV);
+      if (startTag==null) return null;
+      if (startTag.getAttributeValue(&quot;id&quot;).compareTo(&quot;bodyContent&quot;)==0) {
+		    return startTag.getElement().getContent().toString();
+      }
+      pos=startTag.getEnd();
+    }
+  }
+}
+</pre>
+<h2>Analyse</h2>
+<h3>Les importations de bibliothèques</h3>
+<p>J'importe de la bibliothèque Jericho les noms des éléments HTML (HTMLElementName), la classe Source qui est le récupérateur de page web, ainsi que la classe StartTag qui représente les tag HTML de début (par exemple &lt;div&gt;...). J'importe également la classe URL qui me permet de former une url à partir d'une chaine de caractères ainsi que le paquetage gérant les entrées-sorties.</p>
+<blockquote><p>
+import net.htmlparser.jericho.HTMLElementName;<br />
+import net.htmlparser.jericho.Source;<br />
+import net.htmlparser.jericho.StartTag;<br />
+import java.io.*;<br />
+import java.net.URL;
+</p></blockquote>
+<h3>La méthode proprement dite</h3>
+<p>Bien sûr, on commence par déclarer la methode. Je prends pour argument une chaine de caractères qui est le titre de l'article. Le titre pris en argument est un titre classique avec espace, par exemple "Abraham Lincoln".</p>
+<blockquote><p>
+public static String getFromWeb(String articleTitle) throws IOException {
+</p></blockquote>
+<p>Je forme ensuite l'url. Pour cela, je formatte d'abord le titre en replaçant les espaces par des tirets bas, puis j'ajoute en tête de la chaine de caractères obtenue le début de l'url, ici &quot;http://fr.wikipedia.org/wiki/&quot;. Bien sûr, cette url peut être modifiée selon la langue que l'on veut extraire.</p>
+<blockquote><p>
+    String title = articleTitle.replace(&quot; &quot;, &quot;_&quot;);<br />
+    String url = &quot;http://fr.wikipedia.org/wiki/&quot; + title;
+</p></blockquote>
+<p>Après, je récupère la page web contenant l'article avec la ligne suivante.</p>
+<blockquote><p>
+    Source source = new Source(new URL(url));
+</p></blockquote>
+<p>Maintenant, il me faut traiter cette page. En effet, je ne veux pas des menus, juste le contenu de l'article. Pour cela je vais parcourir l'objet source précédemment créé à la recherche de balises html &lt;div&gt;, qui encapsulent les contenus. Le parcours se fait à l'aide d'une boucle &quot;for&quot;. la variable &quot;pos&quot; determine la position du caractère que l'on est en train de lire. Cet élément n'est pas incrémenté, nous verrons pourquoi par la suite.</p>
+<blockquote><p>
+    for (int pos=0; pos&lt;source.length();) {
+</p></blockquote>
+<p>Je recherche donc les balises div à l'aide de la methode &quot;getNextStartTag&quot;, avec en paramètre la position après laquelle je veux rechercher la balise et la nature de la balise que je recherche, ici &quot;HTMLElementName.DIV&quot; qui représente la balise &quot;div&quot;. Je mets le résultat de cette méthode dans un objet StartTag pour me permettre de travailler dessus ensuite.</p>
+<blockquote><p>
+      StartTag startTag=source.getNextStartTag(pos, HTMLElementName.DIV);
+</p></blockquote>
+<p>S'il n'y a plus de balise &quot;div&quot; après la position &quot;pos&quot;, la méthode &quot;getNextStartTag&quot; utilisée ci-dessus retourne &quot;null&quot;. Dans ce cas, la page récupérée ne contient pas d'articles wikipedia et donc notre méthode retourne &quot;null&quot;. On peut noter qu'on pourrait également lever une exception.</p>
+<blockquote><p>
+      if (startTag==null) return null;
+</p></blockquote>
+<p>Par contre, s'il existe une balise &quot;div&quot;, on vérifie que son identifiant CSS (&quot;id&quot;) vaut &quot;bodyContent&quot;. En effet, dans wikipedia, les articles sont encapsulés entre deux balises &lt;div id=&quot;bodyContent&quot;&gt; et &lt;/div&gt;.</p>
+<blockquote><p>
+      if (startTag.getAttributeValue(&quot;id&quot;).compareTo(&quot;bodyContent&quot;)==0) {
+</p></blockquote>
+<p>Si la balise &lt;div&gt a bien pour identifiant &quot;bodyContent&quot;, on récupére le contenu de la balise à l'aide des méthodes getElement().getContent() que l'on transforme en chaine de caractères à l'aide de la méthode toString(). Si vous voulez récupérer cette variable (et donc ne pas mettre d'évènement &quot;return&quote;), n'oublier pas d'ajouter une instruction &quot;break;&quot; après cette ligne pour stopper le processus d'analyse de la page web.</p>
+<blockquote><p>
+        return startTag.getElement().getContent().toString();
+</p></blockquote>
+<p>Nous arrivons à la raison pourquoi nous n'avons pas incrémenté la variable &quot;pos&quot;. En effet l'incrémentation se passe ici. Si le startTag n'est pas la balise recherchée, on place la tête de lecture de caractères à la fin de cette balise et on recommence.</p>
+<blockquote><p>
+      pos=startTag.getEnd();
+</p></blockquote>
+<p>Voilà, on a extrait l'article contenu dans une page wikipedia en partant du titre de celle-ci. J'espère pouvoir bientôt faire un article sur l'extraction de données en utilisant les sauvegardes XML Wikipedia.</p>

@@ -1,0 +1,51 @@
+---
+layout: post
+title: Exemples de fichiers de configuration Apache pour Wordpress
+categories:
+- Linux
+- Serveur
+tags:
+- Apache
+- WordPress
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p>Voici deux exemples de fichier de configuration Apache pour Wordpress. Le premier fichier est le fichier le plus basique pour que wordpress fonctionne, le deuxième permet l'usage du https sur le site et force le https pour la partie administration du site (juste en utilisant la configuration Apache, sans avoir besoin de configurer Wordpress). Ces fichiers sont à mettre dans le dossier <i>/etc/apache2/sites-available</i></p>
+<h1>Fichier de configuration basique</h1>
+<pre>
+&lt;VirtualHost *:80&gt;
+  ServerAdmin monadresse@mail.fr
+  ServerName mon.serveur.fr
+  DocumentRoot /le/dossier/ou/wordpress/est/installé
+&lt;/VirtualHost&gt;
+</pre>
+<h1>Fichier de configuration permettant l'accès crypté</h1>
+<pre>
+&lt;VirtualHost *:80&gt;
+  ServerAdmin monadresse@mail.fr
+  ServerName mon.serveur.fr
+  DocumentRoot /le/dossier/ou/wordpress/est/installé
+  # force la redirection vers https lorsque l'on veut se connecter à l'interface d'administration
+  RewriteEngine On
+  RewriteRule ^/wp-admin(.*)$ https://%{SERVER_NAME}/wp-admin$1 [R=permanent]
+&lt;/VirtualHost&gt;
+
+&lt;VirtualHost *:443&gt;
+  ServerAdmin monadresse@mail.fr
+  ServerName mon.serveur.fr
+  DocumentRoot /le/dossier/où/wordpress/est/installé
+  # connection ssl
+  SSLEngine On
+  SSLCertificateFile /chemin/vers/votre/certificat.crt
+  SSLCertificateKeyFile /chemin/vers/votre/certificat.key
+&lt;/VirtualHost&gt;
+</pre>

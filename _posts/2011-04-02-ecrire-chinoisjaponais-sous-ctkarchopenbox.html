@@ -1,0 +1,50 @@
+---
+layout: post
+title: "Écrire Chinois/Japonais sous CTKArch/Openbox"
+categories:
+- Archlinux
+- Linux
+tags:
+- CTKArch
+- Openbox
+- SCIM
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p><a href="http://ctkarch.org/?fr">CTKArch</a> est une distribution archlinux visant à limiter au maximum la consommation de ressources tout en restant agréable à utiliser. Elle utilise notamment <a href="http://openbox.org/">Openbox</a> comme gestionnaire de fenêtres. </p>
+<p>Pour écrire Chinois, j'utilise <a href="http://www.scim-im.org/">SCIM</a> avec son extension SCIM-pinyin pour le Chinois, et SCIM-anthy pour le Japonais. J'utilise également les polices de caractères <i>Kaiti</i> et <i>Uming</i> (polices Chinoises). La première chose à faire est donc d'installer SCIM, ses extensions et les polices de caractères en tapant la commande suivante en administrateur :<br />
+<code>
+ # pacman -Sy scim scim-pinyin scim-anthy ttf-arphic-ukai ttf-arphic-uming
+</code></p>
+<p>Après il faut dire à votre ordinateur de passer par SCIM lorsque vous tapez quelque chose. Et c'est là que cela se gâte. Normalement, dans la configuration classique de SCIM (sous Gnome par exemple), il suffit de rajouter les lignes suivantes dans votre fichier <i>/etc/profile</i>. </p>
+<pre>
+# exportation des variables pour scim
+export XMODIFIERS=@im=SCIM
+export GTK_IM_MODULE="scim"
+export QT_IM_MODULE="scim"
+</pre>
+<p>Mais ici c'est différent. Il faut ajouter ces lignes à votre fichier <i>~/.config/openbox/autostart.sh</i> <b>AVANT</b> la ligne de lancement de la barre de tache (<i>fbpanel &</i> sous CTKArch) , comme ceci :</p>
+<pre>
+# exportation des variables pour scim
+export XMODIFIERS=@im=SCIM
+export GTK_IM_MODULE="scim"
+export QT_IM_MODULE="scim"
+
+# lancement du panel
+fbpanel &
+</pre>
+<p>Après il ne reste plus qu'à ajouter la ligne de lancement du demon SCIM, à la fin du même fichier (<i>~/.config/openbox/autostart.sh</i>) :</p>
+<pre>
+# lancement de scim
+scim -d &
+</pre>
+<p>Et voilà, normalement, au prochain redémarrage, il suffira de taper sur les touches <i>Controle + Maj</i> pour pouvoir taper Chinois/Japonais.</p>

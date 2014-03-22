@@ -1,0 +1,71 @@
+---
+layout: post
+title: Changer la machine virtuelle Java par défaut sous Archlinux
+categories:
+- Archlinux
+- Java
+tags:
+- Archlinux
+- java
+- jre
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p>Le but est de changer la machine virtuelle java utilisée par défaut par votre distribution Archlinux. Sur les distributions de type Debian, on execute ce changement de machine virtuelle en utilisant la commande <code># update-alternatives --config java</code>. Sous Archlinux on n'a pas ce genre de scripts, on est obligé de changer les variables systèmes directement à la main.</p>
+<h2>Installation des machines virtuelles</h2>
+<p>Je souhaite installer en parallèle la version 7 d'openjdk et la version 6 de la machine virtuelle java d'Oracle. J'ai donc installé les paquets fournissant ces logiciels en executant les commandes suivantes, tout d'abord j'ai installé openjdk :</p>
+<p><code># pacman -S jre7-openjdk jdk7-openjdk</code></p>
+<p>Puis j'ai installé la machine virtuelle java d'Oracle, à l'aide du logiciel yaourt (qui permet d'installer des paquets à partir d'AUR) :</p>
+<p><code>$ yaourt -S jre6-compat jdk6-compat</code></p>
+<h2>Changer de machine virtuelle</h2>
+<p>Par défaut, c'est la machine virtuelle openjdk qui est choisie. cette machine virtuelle est choisie lors de l'initialisation du système, plus particulièrement lors de l'execution des scripts <i>jre.sh</i> et <i>jdk.sh</i> situés dans le dossier <i>/etc/profile.d</i>. En effet, lors de l'initialisation du système, et pour peu que vous utilisiez un shell bash ou compatible, sont executés tous les scripts contenus dans le dossier <i>/etc/profile.d</i> se terminant par ".sh". Si vous utilisez un shell csh ou tcsh, ce sera tous les scripts se terminant par ".csh" qui seront executés. Pour la suite de l'article ce sera un shell bash qui sera utilisé.</p>
+<p>Nous allons faire en sorte que ces scripts <i>jre.sh</i> et <i>jdk.sh</i> ne soient pas executés et nous allons les remplacer par les scripts <i>jre6.sh</i> et <i>jdk6.sh</i>. Pour cela, nous allons d'abord commenter toutes les lignes des fichiers <i>/etc/profile.d/jre.sh</i> et <i>/etc/profile.d/jdk.sh</i> comme montré ci-dessous. Tout d'abord le fichier <i>jre.sh</i> :</p>
+<pre>
+# export J2REDIR=/usr/lib/jvm/java-7-openjdk/jre
+# export JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/java-7-openjdk/jre}
+
+# enable this for non-reparenting window managers
+#export _JAVA_AWT_WM_NONREPARENTING=1
+</pre>
+<p>et le fichier <i>jdk.sh</i> :</p>
+<pre>
+# export J2SDKDIR=/usr/lib/jvm/java-7-openjdk
+# export J2REDIR=$J2SDKDIR/jre
+# export JAVA_HOME=/usr/lib/jvm/java-7-openjdk
+
+# For non-reparenting window managers, enable '_JAVA_AWT_WM_NONREPARENTING'
+# in /etc/profile.d/jre7.sh
+</pre>
+<p>Désormais, si les fichiers <i>jre6.sh</i> et <i>jdk6.sh</i> existent dans le répertoire <i>/etc/profile.d</i>, ce sera la machine virtuelle Oracle qui sera utilisée par défaut. Sinon, il faut encore créer ces deux fichiers.</p>
+<h2>Création des fichiers d'initialisation</h2>
+<p>Si les fichiers <i>jre6.sh</i> et <i>jdk6.sh</i> n'existent pas dans le répertoire <i>/etc/profile.d</i>, il faut les créer dans ce répertoire et les remplir comme ci-dessous. d'abord pour le fichier <i>jre6.sh</i> :</p>
+<pre>
+export PATH=$PATH:/opt/java6/jre/bin
+export JAVA_HOME=${JAVA_HOME:-/opt/java6/jre}
+</pre>
+<p>et le fichier <i>jdk6.sh</i></p>
+<pre>
+export J2SD6KDIR=/opt/java6
+export PATH=$PATH:/opt/java6/bin:/opt/java6/db/bin
+export JAVA6_HOME=/opt/java6
+export DERBY6_HOME=/opt/java6/db
+</pre>
+<p>Après il faut les rendre executables avec les deux commandes suivantes :</p>
+<p><code># chmod 755 /etc/profile.d/jre6.sh<br />
+# chmod 755 /etc/profile.d/jdk6.sh</code></p>
+<h2>Conclusion</h2>
+<p>Voilà, il ne reste plus qu'à redémarrer pour avoir comme machine virtuelle java par défaut la machine virtuelle Oracle. Une simple commande permettant de le vérifier :</p>
+<p><code>$ echo $JAVA_HOME</code> </p>
+<p>qui doit vous renvoyer <i>/opt/java6/jre</i>. Pour rechanger la machine virtuelle par défaut, il vous suffit de commenter toutes les lignes des fichiers <i>jre6.sh</i> et <i>jdk6.sh</i> (en ajoutant "#" au début de chaque ligne) et de décommenter toutes les lignes des fichiers <i>jre.sh</i> et <i>jdk.sh</i> (en enlevant "#" au début de chaque ligne commençant par export).</p>
+<p><i>Références</i><br />
+<i><a href="https://wiki.archlinux.org/index.php/Autostarting">Processus d'initialisation d'Archlinux</a></i><br />
+<i><a href="http://www.chicoree.fr/w/Profile.d_et_ses_alternatives">Utilisation du dossier profile.d</a></i></p>

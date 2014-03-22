@@ -1,0 +1,63 @@
+---
+layout: post
+title: "编译汉字文本用Latex和Linux"
+categories:
+- Latex软件
+tags:
+- Latex
+- "中国"
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wp_old_slug: ''
+author:
+  login: vincent
+  email: vincent@cedeela.fr
+  display_name: vincent
+  first_name: ''
+  last_name: ''
+---
+<p><b>我的中文不太好, 所以若您找到错误就请通知我.</b></p>
+<p>一个快速的方法写汉语用Latex</p>
+<h2>安装Latex-CJK </h2>
+<p>在 <i>Archlinux</i> :<br />
+<code>
+# pacman -S texlive-langcjk
+</code></p>
+<p>在 <i>Debian</i> :<br />
+<code>
+# apt-get install latex-cjk-common
+</code></p>
+<h2>写汉语</h2>
+<p>在您的文件头加入那个行起见装载CJK包 :</p>
+<blockquote><p>\usepackage{CJKutf8}</p></blockquote>
+<p>就您只要在那两个指令中间写汉语 :</p>
+<blockquote><p>
+\begin{CJK}{UTF8}{gbsn}</p>
+<p>  您的汉语文本</p>
+<p>\end{CJK}
+</p></blockquote>
+<p><b>通知 :</b> 在那两个指令您也可以写英语. 所以我本人在文件头和文件尾加入这个指令.</p>
+<blockquote><p>
+\begin{document}<br />
+\begin{CJK}{UTF8}{gbsn}</p>
+<p>  Your text in English<br />
+  您的汉语文本</p>
+<p>\end{CJK}<br />
+\end{document}
+</p></blockquote>
+<h2>副刊 - 写日语</h2>
+<p>写汉语和写日语一样, 您只要更改字体</p>
+<blockquote><p>
+\begin{CJK}{UTF8}{min}</p>
+<p> 您的日语文本</p>
+<p>\end{CJK}
+</p></blockquote>
+<h2> 副刊 - 写拼音 </h2>
+<p>加入这个行起见装载pinyin包 :</p>
+<blockquote><p>\usepackage{pinyin}</p></blockquote>
+<p>就写拼音 :</p>
+<blockquote><p>\wo3 \shi4 \fa3\guo2\ren2</p></blockquote>
+<p><b>通知 :</b> pinyin包断一些希腊字. 例如, 用<i>\pi</i>与拼音包不能编译.</p>
