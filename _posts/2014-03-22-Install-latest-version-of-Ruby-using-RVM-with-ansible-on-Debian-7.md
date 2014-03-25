@@ -44,7 +44,7 @@ First, to install latest ruby, RVM needs ruby and curl installed. We will just i
     - curl
 {% endhighlight %}
 
-Note that we used with_items in order to install several packages at once. After this task, we will install rvm using the command available in the [official rvm website][http://rvm.org]. 
+Note that we used with_items in order to install several packages at once. After this task, we will install rvm using the command available in the [official rvm website](http://rvm.io). 
 
 {% highlight yaml %}
 - name: Install latest stable ruby version
@@ -64,7 +64,8 @@ And finally, we remove the no more needed ruby package from system
 
 That's all, now at your next login to the machine you will have the latest stable version of ruby in your path
 
-Note :
+
+### Note :
 
 To use latest ruby version in your future shell task in ansible, don't forget to add a dependance to the ruby role, and to modify path in order to take directory /usr/local/rvm/rubies/default/bin and /usr/local/rvm/bin, as the following example :
 
