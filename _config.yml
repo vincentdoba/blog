@@ -1,3 +1,6 @@
-name: Vincent Doba blog
+name: Vincent Doba's Blog
+description: Blog about computers and more.
+url: http://vincent.cedeela.fr
+
 markdown: redcarpet
 pygments: true
